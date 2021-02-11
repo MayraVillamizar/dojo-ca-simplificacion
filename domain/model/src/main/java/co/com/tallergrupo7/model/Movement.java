@@ -8,7 +8,7 @@ public class Movement {
 	private String id;
 	private String postedDate;
 	private String description;
-	private float amount;
+	private String amount;
 	private String type;
 	private String reference1;
 	private String reference2;

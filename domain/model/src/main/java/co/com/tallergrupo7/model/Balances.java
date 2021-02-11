@@ -1,23 +1,27 @@
 package co.com.tallergrupo7.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
+
+import java.math.BigDecimal;
 
 @Data
 public class Balances {
-    private float available;
-    private float availableOverdraftBalance;
-    private float overdraftValue;
-    private float availableOverdraftQuota;
-    private float cash;
-    private float clearing;
-    private float receivable;
-    private float blocked;
-    private float clearingStartDay;
-    private float cashStartDay;
-    private float pockets;
-    private float remittanceQuota;
-    private float agreedRemittanceQuota;
-    private float remittanceQuotaUsage;
-    private float normalInterest;
-    private float suspensionInterest;
+    private BigDecimal available;
+    private BigDecimal availableOverdraftBalance;
+    private BigDecimal overdraftValue;
+    private BigDecimal availableOverdraftQuota;
+    private BigDecimal cash;
+    private BigDecimal clearing;
+    private BigDecimal receivable;
+    private BigDecimal blocked;
+    private BigDecimal clearingStartDay;
+    private BigDecimal cashStartDay;
+    private BigDecimal pockets;
+    private BigDecimal remittanceQuota;
+    private BigDecimal agreedRemittanceQuota;
+    private BigDecimal remittanceQuotaUsage;
+    private BigDecimal normalInterest;
+    private BigDecimal suspensionInterest;
 }

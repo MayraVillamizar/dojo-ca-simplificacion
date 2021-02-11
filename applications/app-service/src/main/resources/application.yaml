@@ -6,13 +6,9 @@ spring:
     name: tallergrupo7
   devtools:
     add-properties: false
-  h2:
-    console:
-      enabled: true
-      path: /h2
   profiles:
     include:
     
 url:
-  balances: https://shy-smoke-9103.getsandbox.com/v1/operations/product-specific/deposits/accounts/balances
-  movements: https://purple-wave-7604.getsandbox.com/deposit/movements
+  balances: https://bitter-thunder-813.getsandbox.com/v1/operations/product-specific/deposits/accounts/balances
+  movements: https://late-dust-2436.getsandbox.com/deposit/movements

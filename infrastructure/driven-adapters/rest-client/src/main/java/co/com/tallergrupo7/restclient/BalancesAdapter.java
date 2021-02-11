@@ -3,6 +3,8 @@ package co.com.tallergrupo7.restclient;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -30,8 +32,11 @@ public class BalancesAdapter implements BalancesGateway {
 		RetrieveBalanceRequest request = RetrieveBalanceRequest.builder().data(data).build();
 
 		return WebClient.create(url).post().contentType(MediaType.APPLICATION_JSON)
-				.body(request, RetrieveBalanceRequest.class).retrieve().bodyToMono(RetrieveBalanceResponse.class)
+				.body(Mono.just(request), RetrieveBalanceRequest.class).retrieve()
+				.bodyToMono(RetrieveBalanceResponse.class)
 				.map(r -> r.getData().get(0).getAccount().getBalances());
 
 	}
+
+
 }

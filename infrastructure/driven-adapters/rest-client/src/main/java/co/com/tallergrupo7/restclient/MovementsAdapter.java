@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -45,8 +47,9 @@ public class MovementsAdapter implements MovementsGateway {
 		RetrieveTransactionRequest request = RetrieveTransactionRequest.builder().data(datals).build();
 
 		return WebClient.create(url).post().header(HEADER_TRANSACTION_TRACKER, UUID.randomUUID().toString())
-				.contentType(MediaType.APPLICATION_JSON).body(request, RetrieveTransactionRequest.class).retrieve()
+				.contentType(MediaType.APPLICATION_JSON).body(Mono.just(request), RetrieveTransactionRequest.class).retrieve()
 				.bodyToMono(RetrieveTransactionResponse.class).map(r -> r.getData().get(0).getTransaction());
 
 	}
+
 }

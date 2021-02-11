@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,7 +24,7 @@ public class ApiRest {
 
 	private final BalanceMovementUseCase useCase;
 
-	@PostMapping(value = "/SaldosMovimientos", produces = MediaType.APPLICATION_JSON_VALUE)
+	@PostMapping("/SaldosMovimientos")
 	public Mono<BalancesResponse> getBalancesMovements(@RequestBody BalancesRequest request) {
 
 		return useCase.getBalancesMovements(request).map(r -> {
