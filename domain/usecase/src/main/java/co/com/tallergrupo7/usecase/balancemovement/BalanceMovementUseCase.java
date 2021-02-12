@@ -9,6 +9,7 @@ import co.com.tallergrupo7.model.Movement;
 import co.com.tallergrupo7.model.exceptions.BalancesBusinessException;
 import co.com.tallergrupo7.model.gateways.BalancesGateway;
 import co.com.tallergrupo7.model.gateways.MovementsGateway;
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
@@ -19,6 +20,7 @@ public class BalanceMovementUseCase {
 
 	private final BalancesGateway balancesGateway;
 	private final MovementsGateway movementsGateway;
+
 
 	public Mono<BalancesMovement> getBalancesMovements(BalancesRequest balancesRequest) {
 

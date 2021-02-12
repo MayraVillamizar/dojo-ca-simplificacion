@@ -1,0 +1,41 @@
+plugins {
+    id 'java'
+}
+
+
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+sourceSets {
+    test {
+        java {
+            srcDir file('src/test/java')
+            exclude '**/*UiRunner*.java'
+        }
+        resources {
+            srcDir file('src/test/java')
+            exclude '**/*.java'
+        }
+    }
+}
+
+ext{
+    karateVersion = '0.9.5'
+    cucumberReporting = '5.3.1'
+}
+
+dependencies {
+    testCompile "com.intuit.karate:karate-junit4:$rootProject.ext.karateVersion"
+    testCompile "com.intuit.karate:karate-apache:$rootProject.ext.karateVersion"
+    testCompile "net.masterthought:cucumber-reporting:$rootProject.ext.cucumberReporting"
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}
+
+test {
+    include '**/*AppTest*'
+}
+
+gradle.startParameter.refreshDependencies = true

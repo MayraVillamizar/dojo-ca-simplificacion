@@ -1,0 +1,48 @@
+---
+openapi: 3.0.1
+info:
+  title: defaultTitle
+  description: defaultDescription
+  version: "0.1"
+servers:
+- url: http://localhost:8080
+paths:
+  /tallergrupo7/SaldosMovimientos:
+    post:
+      description: Auto generated using Swagger Inspector
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/body'
+            examples:
+              "0":
+                value: "{\n    \"data\":[\n        {\n            \"account\":{\n                \"type\":\"CUENTA_CORRIENTE\",\n                \"number\":\"55131428291\"\n            }\n         \n        }\n    ]\n}"
+      responses:
+        default:
+          description: Auto generated using Swagger Inspector
+      servers:
+      - url: http://localhost:8080
+    servers:
+    - url: http://localhost:8080
+components:
+  schemas:
+    tallergrupo7SaldosMovimientos_account:
+      type: object
+      properties:
+        number:
+          type: string
+        type:
+          type: string
+    tallergrupo7SaldosMovimientos_data:
+      type: object
+      properties:
+        account:
+          $ref: '#/components/schemas/tallergrupo7SaldosMovimientos_account'
+    body:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/tallergrupo7SaldosMovimientos_data'

@@ -1,0 +1,1322 @@
+---
+swagger: "2.0"
+info:
+  title: "Account - Balances AWS"
+  description: "Permite realizar las consultas de saldos de una cuenta de depósito,\
+    \ se puede consultar por cuenta o por todas las cuentas de un cliente en particular."
+  contact:
+    name: "Bancolombia API Working Group"
+    email: "apigroup@bancolombia.com.co"
+    url: "https://developer.grupobancolombia.com.co/contact"
+  termsOfService: ""
+  version: "1.0.1"
+  x-ibm-name: "account-balances-aws"
+basePath: "/v1/operations/product-specific/deposits"
+paths:
+  /accounts/balances:
+    post:
+      summary: "API que permite consultar los saldos de una cuenta."
+      description: "API que permite consultar los saldos de una cuenta."
+      parameters:
+      - name: "request"
+        required: true
+        in: "body"
+        schema:
+          $ref: "#/definitions/RequestAccountBalances"
+      responses:
+        200:
+          schema:
+            $ref: "#/definitions/ResponseAccountBalances"
+          description: "Respuesta exitosa."
+          x-ibm-languages:
+            description:
+              en: "Successful response."
+          headers:
+            X-API-Version:
+              type: "number"
+              format: "float"
+              description: "Versionamiento semantico de la API"
+              x-ibm-languages:
+                description:
+                  en: "Semantic versioning of the API"
+            X-RateLimit-Limit:
+              type: "integer"
+              description: "Límite de solicitudes por hora"
+              x-ibm-languages:
+                description:
+                  en: "Resquest limit per hour."
+        400:
+          schema:
+            $ref: "#/definitions/failure"
+          description: "Error en la solicitud."
+          x-ibm-languages:
+            description:
+              en: "Error in the request."
+        401:
+          schema:
+            $ref: "#/definitions/failure"
+          description: "Credenciales incorrectas."
+          x-ibm-languages:
+            description:
+              en: "Incorrect credentials."
+        403:
+          schema:
+            $ref: "#/definitions/failure"
+          description: "No tiene permisos para acceder al recurso."
+          x-ibm-languages:
+            description:
+              en: "You do not have permissions to access the resource."
+        404:
+          schema:
+            $ref: "#/definitions/failure"
+          description: "Recurso no encontrado."
+          x-ibm-languages:
+            description:
+              en: "Resource not found."
+        409:
+          schema:
+            $ref: "#/definitions/failure"
+          description: "El estado del recurso presenta conflictos con los datos de\
+            \ la solicitud."
+          x-ibm-languages:
+            description:
+              en: "Resource state has conflicts with data of the request."
+        500:
+          schema:
+            $ref: "#/definitions/failure"
+          description: "Error interno del servidor."
+          x-ibm-languages:
+            description:
+              en: "Internal server error."
+        502:
+          schema:
+            $ref: "#/definitions/failure"
+          description: "Error en la respuesta del proveedor del servicio."
+          x-ibm-languages:
+            description:
+              en: "Error in the service provider response."
+        503:
+          schema:
+            $ref: "#/definitions/failure"
+          description: "Servicio no disponible."
+          x-ibm-languages:
+            description:
+              en: "Service unavailable."
+        504:
+          schema:
+            $ref: "#/definitions/failure"
+          description: "Tiempo de respuesta del proveedor del servicio excedido."
+          x-ibm-languages:
+            description:
+              en: "Service provider response time exceeded."
+        default:
+          description: "Error inesperado."
+          x-ibm-languages:
+            description:
+              en: "Unexpected Error."
+      tags:
+      - "Account Balance"
+      security:
+      - ClientSecret: []
+        ClientId: []
+      
+  /account-balances/health:
+    head:
+      responses:
+        200:
+          description: "200 OK"
+      security:
+      - ClientId: []
+        ClientSecret: []
+definitions:
+  RequestAccountBalances:
+    type: "object"
+    required:
+    - "data"
+    properties:
+      data:
+        type: "array"
+        uniqueItems: true
+        items:
+          required:
+          - "account"
+          properties:
+            account:
+              $ref: "#/definitions/account"
+  ResponseAccountBalances:
+    type: "object"
+    required:
+    - "data"
+    properties:
+      meta:
+        $ref: "#/definitions/meta"
+      data:
+        type: "array"
+        uniqueItems: true
+        items:
+          type: "object"
+          required:
+          - "account"
+          properties:
+            account:
+              type: "object"
+              required:
+              - "balances"
+              properties:
+                balances:
+                  $ref: "#/definitions/accountBalance"
+      links:
+        $ref: "#/definitions/links"
+    additionalProperties: false
+  account:
+    type: "object"
+    required:
+    - "type"
+    - "number"
+    allOf:
+    - $ref: "#/definitions/type"
+    - $ref: "#/definitions/number"
+  accountInformation:
+    type: "object"
+    required:
+    - "type"
+    - "number"
+    - "participant"
+    - "balances"
+    properties:
+      type:
+        type: "string"
+        description: "Tipo de cuenta."
+        example: "CUENTA_CORRIENTE"
+        enum:
+        - "CUENTA_DE_AHORRO"
+        - "CUENTA_CORRIENTE"
+      number:
+        type: "string"
+        description: "Número de la cuenta."
+        example: "55131428291"
+        maxLength: 16
+        minLength: 1
+      participant:
+        type: "object"
+        required:
+        - "relation"
+        properties:
+          relation:
+            type: "string"
+            maxLength: 50
+            description: "Campo que determina la relación existente entre una persona\
+              \ y una cuenta."
+            example: "TITULAR"
+            enum:
+            - "TITULAR"
+            - "COTITULAR"
+            - "COTITULAR CONJUNTO"
+            - "COTITULAR COLECTIVO"
+      balances:
+        $ref: "#/definitions/accountBalance"
+  type:
+    type: "object"
+    properties:
+      type:
+        type: "string"
+        description: "Tipo de cuenta."
+        example: "CUENTA_CORRIENTE"
+        enum:
+        - "CUENTA_DE_AHORRO"
+        - "CUENTA_CORRIENTE"
+  number:
+    type: "object"
+    properties:
+      number:
+        type: "string"
+        description: "Número de la cuenta."
+        example: "55131428291"
+        maxLength: 16
+        minLength: 1
+  accountBalance:
+    type: "object"
+    required:
+    - "available"
+    - "availableOverdraftBalance"
+    - "overdraftValue"
+    - "availableOverdraftQuota"
+    - "cash"
+    - "clearing"
+    - "receivable"
+    - "blocked"
+    - "clearingStartDay"
+    - "cashStartDay"
+    - "pockets"
+    - "remittanceQuota"
+    - "agreedRemittanceQuota"
+    - "remittanceQuotaUsage"
+    - "normalInterest"
+    - "suspensionInterest"
+    properties:
+      available:
+        type: "number"
+        description: "Saldo disponible."
+        example: 25000000
+        maxLength: 21
+        minLength: 1
+      availableOverdraftBalance:
+        type: "number"
+        description: "Saldo disponible. + Valor cupo de sobregiro."
+        example: 0
+        maxLength: 21
+        minLength: 1
+      overdraftValue:
+        type: "number"
+        format: "float"
+        description: "Valor total del Cupo de Sobregiro."
+        example: 0
+        maxLength: 21
+        minLength: 1
+      availableOverdraftQuota:
+        type: "number"
+        format: "float"
+        description: "Valor del Cupo de Sobregiro que se puede utilizar."
+        example: 0
+        maxLength: 21
+        minLength: 1
+      cash:
+        type: "number"
+        format: "float"
+        description: "Saldo en efectivo."
+        example: 25000000
+        maxLength: 21
+        minLength: 1
+      clearing:
+        type: "number"
+        format: "float"
+        description: "Saldo en canje."
+        example: 0
+        maxLength: 21
+        minLength: 1
+      receivable:
+        type: "number"
+        format: "float"
+        description: "Saldos en cuentas por cobrar."
+        example: 1500000
+        maxLength: 21
+        minLength: 1
+      blocked:
+        type: "number"
+        format: "float"
+        description: "Saldo bloqueado."
+        example: 0
+        maxLength: 21
+        minLength: 1
+      clearingStartDay:
+        type: "number"
+        format: "float"
+        description: "Saldo en canje al inicio del día."
+        example: 0
+        maxLength: 21
+        minLength: 1
+      cashStartDay:
+        type: "number"
+        format: "float"
+        description: "Saldo en efectivo al inicio del día."
+        example: 25000000
+        maxLength: 21
+        minLength: 1
+      pockets:
+        type: "number"
+        format: "float"
+        description: "Saldo de bolsillos."
+        example: 5000000
+        maxLength: 21
+        minLength: 1
+      remittanceQuota:
+        type: "number"
+        format: "float"
+        description: "Cupo remesas consignadas."
+        example: 0
+        maxLength: 21
+        minLength: 1
+      agreedRemittanceQuota:
+        type: "number"
+        format: "float"
+        description: "Cupo remesa negociada."
+        example: 0
+        maxLength: 21
+        minLength: 1
+      remittanceQuotaUsage:
+        type: "number"
+        format: "float"
+        description: "Saldo utilizado del cupo de la remesa."
+        example: 0
+        maxLength: 21
+        minLength: 1
+      normalInterest:
+        type: "number"
+        format: "float"
+        description: "Intereses de sobregiro que tienen menos de 90 días."
+        example: 0
+        maxLength: 21
+        minLength: 1
+      suspensionInterest:
+        type: "number"
+        format: "float"
+        description: "Intereses de sobregiro que tienen mas de 90 días o menos dependiendo\
+          \ de la calificación del cliente."
+        example: 0
+        maxLength: 21
+        minLength: 1
+  office:
+    type: "object"
+    required:
+    - "code"
+    properties:
+      code:
+        type: "string"
+        description: "Código de la sucursal dueña de la cuenta. En caso de no enviar\
+          \ éste filtro, se retornaran las cuentas sin tener en cuenta la oficina\
+          \ dueña."
+        example: "00406"
+        maxLength: 8
+        minLength: 1
+  meta:
+    description: "Meta-información no estándar que no se puede representar con datos."
+    type: "object"
+    required:
+    - "_messageId"
+    - "_version"
+    - "_requestTimeStamp"
+    properties:
+      _messageId:
+        type: "string"
+        example: "c4e6bd04-5149-11e7-b114-b2f933d5fe66"
+      _requestTimeStamp:
+        type: "string"
+        format: "date-time"
+        example: "2017-01-24T05:00:00.000Z"
+      _applicationId:
+        type: "string"
+        example: "acxff62e-6f12-42de-9012-3e7304418abd"
+      _responseSize:
+        type: "integer"
+        example: 1
+      _version:
+        type: "string"
+        example: "3.0"
+  metaPagination:
+    description: "Meta-información no estandar que no se puede representar con datos."
+    type: "object"
+    required:
+    - "_messageId"
+    - "_version"
+    - "_requestTimeStamp"
+    properties:
+      _messageId:
+        type: "string"
+        example: "c4e6bd04-5149-11e7-b114-b2f933d5fe66"
+      _requestTimeStamp:
+        type: "string"
+        format: "date-time"
+        example: "2017-01-24T05:00:00.000Z"
+      _applicationId:
+        type: "string"
+        example: "acxff62e-6f12-42de-9012-3e7304418abd"
+      _responseSize:
+        type: "integer"
+        example: 1
+      _flagMoreRecords:
+        type: "boolean"
+        example: true
+      _version:
+        type: "string"
+        example: "3.0"
+  topLevelLinks:
+    description: "URLs related to the primary data."
+    type: "object"
+    allOf:
+    - $ref: "#/definitions/links"
+    - $ref: "#/definitions/pagination"
+  pagination:
+    type: "object"
+    properties:
+      first:
+        description: "the first page of data"
+        type: "string"
+        format: "uri"
+      last:
+        description: "the last page of data"
+        type: "string"
+        format: "uri"
+      prev:
+        description: "the previous page of data"
+        type: "string"
+        format: "uri"
+      next:
+        description: "the next page of data"
+        type: "string"
+        format: "uri"
+  links:
+    description: "A resource object **MAY** contain references to other resource objects"
+    type: "object"
+    properties:
+      self:
+        description: "A self member, whose value is a URL for the relationship data"
+        type: "string"
+        format: "uri"
+    additionalProperties: false
+  failure:
+    type: "object"
+    required:
+    - "meta"
+    - "errors"
+    properties:
+      meta:
+        $ref: "#/definitions/meta"
+      errors:
+        type: "array"
+        uniqueItems: true
+        items:
+          $ref: "#/definitions/error"
+    additionalProperties: false
+  error:
+    type: "object"
+    required:
+    - "code"
+    - "detail"
+    properties:
+      id:
+        description: "Un identificador único para esta aparición particular del\
+          \ problema."
+        type: "string"
+        example: "5f2d287a-3a3f-11e7-a919-92ebcb67fe33"
+      href:
+        description: "Un URI que ** PUEDE ** proporciona más detalles sobre esta\
+          \ ocurrencia particular del problema."
+        type: "string"
+        example: "https://tools.ietf.org/html/rfc7231#section-6.5.4"
+      status:
+        description: "El código de estado HTTP aplicable a este problema, expresado\
+          \ como un valor de cadena."
+        type: "string"
+        example: 404
+      code:
+        description: "Un código de error específico de la aplicación, expresado\
+          \ como un valor de cadena."
+        type: "string"
+        example: "BP404"
+      title:
+        description: "Un breve resumen, legible por el hombre, del problema. ** NO\
+          \ DEBE ** cambiar de ocurrencia a ocurrencia del problema, excepto para\
+          \ propósitos de localización."
+        type: "string"
+        example: "Not Found"
+      detail:
+        description: "Una explicación legible por humanos específica para esta ocurrencia\
+          \ del problema."
+        type: "string"
+        example: "Requested resource could not be found"
+    additionalProperties: false
+schemes:
+- "https"
+consumes:
+- "application/json"
+- "application/vnd.bancolombia.v3+json"
+produces:
+- "application/json"
+- "application/vnd.bancolombia.v3+json"
+- "roacarmo"
+- "jearcila"
+- "vgvarga"
+x-ibm-configuration:
+  enforced: true
+  testable: true
+  phase: "realized"
+  cors:
+    enabled: true
+  properties:
+    MicroAuth:
+      value: ""
+      description: ""
+      encoded: false
+    profileTls:
+      value: "apic-dev-tls-profile"
+      description: ""
+      encoded: false
+    EndPoint:
+      value: ""
+      description: ""
+      encoded: false
+    catalogName:
+      value: "development"
+      description: ""
+      encoded: false
+  catalogs:
+    Development:
+      properties:
+        MicroAuth: "Basic cm9vdGRldnNhbGRvOnJvb3RzYWxkb3Bhc3M="
+        EndPoint: "https://ecosistemariesgos-dev.apps.ambientesbc.lab/ria/api"
+    Sandbox:
+      properties:
+        catalogName: "sandbox"
+        ProfileTLS: ""
+        profileTls: "apic-sbx-tls-profile"
+    Testing:
+      properties:
+        catalogName: "testing"
+        EndPoint: "https://ecosistemariesgos-qa.apps.ambientesbc.lab/ria/api"
+        profileTls: "apic-qa-tls-profile"
+        MicroAuth: "Basic cm9vdHFhc2FsZG86cm9vdHNhbGRvcGFzcw=="
+    Production:
+      properties:
+        catalogName: "production"
+        EndPoint: "https://ecosistemariesgos-int.apps.bancolombia.com/ria/api"
+        profileTls: "apic-prd-tls-profile"
+        MicroAuth: "Basic cm9vdHBkbnNhbGRvOkpFRzdhcnBmM2RUV2JRSA=="
+  assembly:
+    execute:
+    - activity-log:
+        title: "activity-log"
+        content: "payload"
+        error-content: "payload"
+        version: "1.0.0"
+    - xslt:
+        title: "generate-uuid"
+        input: false
+        version: "1.0.0"
+        source: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<xsl:stylesheet version=\"\
+          1.0\" xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" xmlns:apim=\"http://www.ibm.com/apimanagement\"\
+          \ xmlns:dp=\"http://www.datapower.com/extensions\" extension-element-prefixes=\"\
+          dp func apim\" exclude-result-prefixes=\"dp\">\n\t<!-- OBLIGATORY - Contains\
+          \ the APIM functions -->\n\t<xsl:include href=\"local:///isp/policy/apim.custom.xsl\"\
+          \ />\n\t<xsl:import href=\"local:///isp/policy/apim.context.xsl\" />\n\t\
+          <xsl:import href=\"local:///isp/policy/assembly-util.xsl\" />\n\t<xsl:template\
+          \ match=\"/\">\n\t\t<!-- call functions datapowerd -->\n\t\t<xsl:variable\
+          \ name=\"uuid\" select=\"dp:generate-uuid()\"/>\n\t\t<xsl:call-template\
+          \ name=\"apim:setVariable\">\n\t\t\t<xsl:with-param name=\"varName\" select=\"\
+          'ctx.uuid'\" />\n\t\t\t<xsl:with-param name=\"value\" select=\"$uuid\" />\n\
+          \t\t</xsl:call-template>\n\t</xsl:template>\n</xsl:stylesheet>"
+    - gatewayscript:
+        title: "init-meta"
+        version: "1.0.0"
+        source: "initMeta();\napim.setvariable('ctx.selfLink', getLink()); \n  \n\
+          //Retorna la fecha actual del sistema\nfunction getRequestDate() {\n   \
+          \ let systemTime = new Date();\n    systemTime = new Date(systemTime.getTime()\
+          \ - (3600 * 5000));\n    return systemTime.toISOString();\n}\n\nfunction\
+          \ initMeta(){\n    var message_id = '';\n    if (!apim.getvariable('request.headers.message-id'))\
+          \ {\n        message_id = apim.getvariable('ctx.uuid');\n    } else {\n\
+          \        message_id = apim.getvariable('request.headers.message-id');\n\
+          \        apim.setvariable('ctx.uuid', message_id)\n    }\n    \n    let\
+          \ meta = {\n        _messageId: message_id,\n        _requestTimeStamp:\
+          \ getRequestDate(),        \n        _applicationId: apim.getvariable('client.app.id'),\
+          \        \n        _responseSize: 1,\n        _version: '3.0'\n    }\n \
+          \   apim.setvariable(\"ctx.meta\", meta);\n}\n\n//Retorna la url del endpoint\n\
+          function getLink() {\n    let uri = apim.getvariable('request.uri');\n \
+          \   uri = uri.replace(\"https://\", \"\");\n    uri = uri.slice(uri.indexOf(\"\
+          /\"));\n    uri = \"https://\" + apim.getvariable(\"api.endpoint.hostname\"\
+          ) + uri;\n    return uri;\n}"
+    - switch:
+        title: "switch"
+        case:
+        - condition: "((request.verb==='POST')&&(api.operation.path==='/accounts/balances'))"
+          execute:
+          - gatewayscript:
+              title: "Validate Request Balance1"
+              version: "1.0.0"
+              source: "let app =  apim.getvariable('client.app.name');    \r\nlet\
+                \ appName = app.trim(); \r\ngetConsumer(appName);     \r\n\r\nlet\
+                \ requestbody = apim.getvariable('request.body');          \r\nif\
+                \ (validData(requestbody)) {\r\n    let parameters = requestbody.data[0];\r\
+                \n    \r\n    if(validJSONObject(parameters, \"account\"))\r\n   \
+                \ {\r\n        validateString(\"number\", parameters.account.number\
+                \ , 1, 16, true);\r\n        validateDomain([\"CUENTA_DE_AHORRO\"\
+                ,\"CUENTA_CORRIENTE\"], \"type\",parameters.account.type, \"El tipo\
+                \ de cuenta es inválido\", true);\r\n    }\r\n    \r\n}\r\napim.setvariable('message.headers.messageId',\
+                \ apim.getvariable(\"ctx.meta._messageId\"));\r\napim.setvariable('message.headers.Authorization',\
+                \ apim.getvariable(\"api.properties.MicroAuth\"))\r\napim.setvariable('message.headers.content-type',\
+                \ 'application/json; charset=UTF-8')\r\napim.setvariable('message.body',\
+                \ requestbody);\r\n\r\nfunction validData(requestBody) {\r\n     \
+                \   var valid = true;\r\n        if (!requestBody) {\r\n         \
+                \   throwError(\"ParametersException\", \"Payload inválido\", 400);\r\
+                \n            valid = false;\r\n        } else {\r\n            if\
+                \ (!requestBody.hasOwnProperty('data')) {\r\n                throwError(\"\
+                ParametersException\", \"Parámetro data requerido\", 400);\r\n   \
+                \             valid = false;\r\n            } else {\r\n         \
+                \       if (!Array.isArray(requestBody.data) || requestBody.data.length\
+                \ == 0) {\r\n                    throwError(\"ParametersException\"\
+                , \"Parámetro data inválido\", 400);\r\n                    valid\
+                \ = false;\r\n                }\r\n            }\r\n        }\r\n\
+                \        return valid;\r\n    }\r\n//Validación de string \r\nfunction\
+                \ validateString(name, value, minLength = 0, maxLength = 256, required\
+                \ = false) {\r\n    var message;\r\n    var patternStr = /^[0-9a-zA-Zá\
+                éíóúñÁÉÍÚÓÑ#@.,-_\\s]+$/;\r\n    if (value && value != \"undefined\"\
+                \ && value != null) {\r\n        if(isNaN(value)){\r\n           \
+                \ value = value.trim();\r\n        }\r\n        if (value.length <\
+                \ minLength || value.length > maxLength) {\r\n            message\
+                \ = name + ' no cumple la longitud esperada.';\r\n        } else if\
+                \ (!patternStr.test(value)) {\r\n            message = 'Longitud del\
+                \ parámetro ' + name + ' inválida';\r\n        }\r\n    } else if\
+                \ (required) {\r\n        message = 'Uno de los campos requerido no\
+                \ fue recibido.';\r\n    }\r\n    if (message) {\r\n        throwError('ParametersException',\
+                \ message, '400');\r\n        return false;\r\n    }\r\n    return\
+                \ true;\r\n}\r\n\r\n//Validar si un valor es número o no.\r\nfunction\
+                \ validateNumber(name, value, minLength = 0, maxLength = 256, required\
+                \ = false) {\r\n    var message;\r\n    var valid = true;\r\n    if\
+                \ (!isEmpty(value)) {\r\n        var vecValue = value.toString().split(\"\
+                .\");\r\n        if (isNaN(value) || vecValue[1] > -1) {\r\n     \
+                \       message = name + ' no cumple con el formato esperado.';\r\n\
+                \        } else if (value.length < minLength || value.length > maxLength)\
+                \ {\r\n            message = 'Longitud del parámetro ' + name + '\
+                \ inválida ' + value;\r\n        }\r\n    } else if (required) {\r\
+                \n        message = 'Parámetro ' + name + ' requerido';\r\n    }\r\
+                \n    if (message) {\r\n        throwError('ParametersException',\
+                \ message, '400');\r\n        valid = false;\r\n    }\r\n    return\
+                \ valid;\r\n}\r\n\r\n//Validar numeros decimales y cifras enteras\
+                \ \r\nfunction validateFloat(name, value, quantityInt = 0, quantityDec\
+                \ = 256, required = false) {\r\n    var message;\r\n    var valid\
+                \ = true;\r\n\r\n    if (!isEmpty(value)) {\r\n        var vecValue\
+                \ = value.toString().split(\".\");\r\n        if (isNaN(value) ||\
+                \ vecValue[1] === undefined) {\r\n            message = name + ' no\
+                \ cumple con el formato esperado.';\r\n        } else if (vecValue[0].length\
+                \ > quantityInt || vecValue[1].length > quantityDec) {\r\n       \
+                \     message = 'Longitud del parámetro ' + name + ' inválida ' +\
+                \ value;\r\n        }\r\n    } else if (required) {\r\n        message\
+                \ = 'Parámetro ' + name + ' requerido';\r\n    }\r\n    if (message)\
+                \ {\r\n        throwError('ParametersException', message, '400');\r\
+                \n        valid = false;\r\n    }\r\n    return valid;\r\n}\r\n\r\n\
+                //Validación de un valor dentro de un dominio \r\nfunction validateDomain(domain,\
+                \ key, value, message, required=false) {\r\n    if(isEmpty(value)){\r\
+                \n      if(required==false){\r\n        return;\r\n      }\r\n   \
+                \ } \r\n      if (domain.indexOf(value) <= -1) {\r\n          if (message)\
+                \ {\r\n              throwError('ParametersException', message, 400);\r\
+                \n          } else {\r\n              throwError('ParametersException',\
+                \ 'Parameter ' + key + ' es inválido.', 400);\r\n          }\r\n \
+                \     } else {\r\n            return true;\r\n      }\r\n}\r\n\r\n\
+                //Validación de un JSON Object \r\nfunction validJSONObject(requestBody,\
+                \ property) {\r\n    if (!requestBody.hasOwnProperty(property) ||\
+                \ requestBody[property] == \"undefined\") {\r\n        throwError(\"\
+                ParametersException\", \"Parámetro \" + property + \" requerido\"\
+                , 400);\r\n        return false;\r\n    } else {\r\n        if (!requestBody[property]\
+                \ || requestBody[property] == null || !(requestBody[property] instanceof\
+                \ Object)) {\r\n            throwError(\"ParametersException\", \"\
+                Parámetro \" + property + \" inválido\", 400);\r\n            return\
+                \ false;\r\n        }else{\r\n            return true;\r\n       \
+                \ }\r\n    }\r\n}\r\n\r\n//Validación de un JSON Array\r\nfunction\
+                \ validJSONArray(requestBody, property){\r\n    if(!requestBody.hasOwnProperty(property)\
+                \ || requestBody[property] == \"undefined\"){\r\n        throwError(\"\
+                ParametersException\",\"Parámetro \" + property + \" requerido\",400);\r\
+                \n        return false;\r\n    }else{\r\n        if(!requestBody[property]\
+                \ || requestBody[property] == null || !Array.isArray(requestBody[property])){\r\
+                \n            throwError(\"ParametersException\",\"Parámetro \" +\
+                \ property + \" inválido\",400);\r\n            return false;\r\n\
+                \        }else{\r\n            return true;\r\n        }\r\n    }\r\
+                \n}\r\n\r\n//Validación de formato de fechas YYYY-DD-MM \r\nfunction\
+                \ validateDate(value, required = false) {\r\n    if(required == true){\r\
+                \n        var validate = true;\r\n        var pattern = /^((2[0-9]|19)[0-9]{2})-(1[0-2]|0[1-9])-(0[1-9]|[12][0-9]|3[01])$/;\r\
+                \n        if (!pattern.test(value)) {\r\n            throwError(\"\
+                ParametersException\", \"Formato fecha no es inválido\", 400);\r\n\
+                \            validate = false;\r\n        }           \r\n    }\r\n\
+                \    return validate;\r\n}\r\n\r\n//Validación de string sin expresió\
+                n regular \r\nfunction validateStringWithOutRegex(name, value, minLength\
+                \ = 0, maxLength = 256, required = false) {\r\n    var message;\r\n\
+                \    if (value && value != \"undefined\") {\r\n        value = value.trim();\r\
+                \n        if (value.length < minLength || value.length > maxLength)\
+                \ {\r\n            message = 'Longitud del parámetro ' + name + '\
+                \ inválida';\r\n        }\r\n    } else if (required) {\r\n      \
+                \  message = 'Parámetro ' + name + ' requerido';\r\n    }\r\n    if\
+                \ (message) {\r\n        throwError('ParametersException', message,\
+                \ '400');\r\n        return false;\r\n    }\r\n    return true;\r\n\
+                }\r\n//Validar una fecha ingresada con una fecha actual \r\nfunction\
+                \ validateDateCurrent(dateRequest) {\r\n    var dateCurrent = new\
+                \ Date();\r\n    var dateAux = dateRequest.split(\"-\");\r\n    var\
+                \ date = new Date(parseInt(dateAux[0]), parseInt(dateAux[1] - 1),\
+                \ parseInt(dateAux[2]));\r\n    // Comparamos solo las fechas => no\
+                \ las horas!! \r\n    dateCurrent.setHours(0, 0, 0, 0);\r\n    date.setHours(0,\
+                \ 0, 0, 0);\r\n    // Lo iniciamos a 00:00 horas \r\n    if (date\
+                \ > dateCurrent) {\r\n        throwError(\"ParametersException\",\
+                \ 'La fecha del documento es superior a la fecha actual.\"', 400);\r\
+                \n    }\r\n}\r\n\r\nfunction numberFloat(value, tenths) {\r\n    return\
+                \ Number.parseFloat(value).toFixed(tenths).toString();\r\n}\r\n\r\n\
+                //concatenar ceros a la izquierda\r\nfunction concatZeroLeft(value,\
+                \ quantityInt){\r\n  let int = value.split('.')[0]\r\n\r\n  if(int==0){\r\
+                \n    return '000000000000'+value;\r\n  }else{\r\n    let newFinalAmount\
+                \ = value;\r\n      for(let i=0;i<(quantityInt-int.length);i++){\r\
+                \n        newFinalAmount = '0' + newFinalAmount;\r\n      }\r\n  \
+                \          return newFinalAmount;\r\n    }\r\n}\r\n\r\n//validacion\
+                \ de un valor como nit\r\nfunction validateNIT(value) {\r\n    let\
+                \ patternStr = /^([0-9]{9}-[0-9]{1})?$/;\r\n    if (!patternStr.test(value))\
+                \ {\r\n        throwError('ParametersException', 'El NIT no tiene\
+                \ la estructura esperada.', '400');\r\n    }\r\n}\r\n\r\n//Validació\
+                n de un valor vacio, nulo o indefinido\r\nfunction isEmpty(str) {\r\
+                \n    return (str == null || str == \"undefined\"|| 0 === str.length\
+                \ || str == \" \");\r\n}\r\n\r\nfunction getRequestDate() {\r\n  \
+                \  var systemTime = new Date();\r\n    systemTime = new Date(systemTime.getTime()\
+                \ - (3600 * 5000));\r\n    return systemTime.toISOString();\r\n}\r\
+                \n//Lanza excepciones y guarda el codigo y la descripcion del error\
+                \ en una variable de contexto \r\nfunction throwError(errorName, description,\
+                \ code) {\r\n    apim.setvariable(\"ctx.errorData\", {\r\n       \
+                \ description: description,\r\n        code: code\r\n    });\r\n \
+                \   description = description || \"Internal Error\";\r\n    code =\
+                \ code || \"500\";\r\n    apim.error(errorName, code, description,\
+                \ description);\r\n}\r\n\r\nfunction getConsumer(appName){\r\n   \
+                \ try{\r\n        let name = appName.split('_');\r\n        let ident\
+                \ = name[1];\r\n        let nombre = name[0];\r\n        if (ident)\
+                \ {\r\n            apim.setvariable('ctx.consumer', ident);\r\n  \
+                \          apim.setvariable('ctx.appName', nombre);\r\n        } else\
+                \ {\r\n            throwError('ParametersException','Identificació\
+                n de aplicación inválido','409');\r\n        }\r\n    }catch(exception){\r\
+                \n        throwError('ParametersException','Identificación de aplicació\
+                n inválido','409');\r\n    }\r\n}"
+          - switch:
+              title: "switch"
+              case:
+              - condition: "$(env.path)=='sandbox'"
+                execute:
+                - gatewayscript:
+                    title: "create-sandbox"
+                    version: "1.0.0"
+                    source: "filterHeaders();\nlet requestbody = apim.getvariable('request.body');\
+                      \ \nlet accountNumber = requestbody.data[0].account.number;\n\
+                      \nlet meta = apim.getvariable('ctx.meta')\n\nlet data = {};\n\
+                      \nif(accountNumber == \"100014434\"){\n    data = {\n      \
+                      \  meta,\n        data: [\n            {\n                header:\
+                      \ {\n                    type: 'Account-Balance',\n        \
+                      \            id: \"Account-Balance-\" + meta._requestTimeStamp\n\
+                      \                },\n                account: {\n          \
+                      \          balances:       {\n                         available:\
+                      \ -777,\n                         availableOverdraftBalance:\
+                      \ 222,\n                         overdraftValue: 999,\n    \
+                      \                     availableOverdraftQuota: 111,\n      \
+                      \                   cash: 888,\n                         clearing:\
+                      \ 777,\n                         receivable: 555,\n        \
+                      \                 blocked: 1110,\n                         clearingStartDay:\
+                      \ 333,\n                         cashStartDay: 222,\n      \
+                      \                   pockets: 444,\n                        \
+                      \ remittanceQuota: 111,\n                         agreedRemittanceQuota:\
+                      \ 1234,\n                         remittanceQuotaUsage: 12345,\n\
+                      \                         normalInterest: 0,\n             \
+                      \            suspensionInterest: 0\n                    }\n\
+                      \                }\n            }\n        ],\n        links:\
+                      \ {\n            self: getLink()\n        }\n    }\n}else{\n\
+                      \    data = {\n        meta,\n        errors: [{\n         \
+                      \  id: \"3240f1ee-284a-4e25-bb7b-418dc2b33fb7\",\n         \
+                      \  href: \"https://tools.ietf.org/html/rfc7231#section-6.5.4\"\
+                      ,\n           status: 404,\n           code: \"BP12900003\"\
+                      ,\n           title: \"Not Found\",\n           detail: \"Balance\
+                      \ Not Found in DynamoDB\"\n        }]\n    }\n    \n    apim.setvariable('message.status.code',\
+                      \ 404);\n}\n\napim.setvariable('message.body', data);\napim.output(\"\
+                      application/vnd.bancolombia.v3+json; charset=UTF-8\");\n\n\n\
+                      function throwError(errorName, description, code) {\n    apim.setvariable(\"\
+                      ctx.errorData\", { description: description, code: code });\n\
+                      \    description = description || \"Internal Error\";\n    code\
+                      \ = code || \"500\";\n    apim.error(errorName, code, description,\
+                      \ description);\n}\n\n//Retorna la url del endpoint\nfunction\
+                      \ getLink() {\n    let uri = apim.getvariable('request.uri');\n\
+                      \    uri = uri.replace(\"https://\", \"\");\n    uri = uri.slice(uri.indexOf(\"\
+                      /\"));\n    uri = \"https://\" + apim.getvariable(\"api.endpoint.hostname\"\
+                      ) + uri;\n    return uri;\n}\n\nfunction filterHeaders() {\n\
+                      \    let header_meta = require('header-metadata');\n    header_meta.current.headers\
+                      \ = {\n        \"Accept\": \"application/vnd.bancolombia.v3+json\"\
+                      ,\n        \"X-Content-Type-Options\": \"nosniff\",\n      \
+                      \  \"Content-Type\": \"application/vnd.bancolombia.v3+json;\
+                      \ charset=utf-8\",\n        \"X-API-Version\": apim.getvariable('api.version'),\n\
+                      \        \"X-RateLimit-Limit\": apim.getvariable('plan.rate-limit'),\n\
+                      \        \"Message-id\": apim.getvariable('ctx.uuid')\n    }\n\
+                      }"
+              - otherwise:
+                - invoke:
+                    title: "invoke"
+                    timeout: 5
+                    verb: "POST"
+                    cache-response: "protocol"
+                    cache-ttl: 900
+                    stop-on-error:
+                    - "ConnectionError"
+                    version: "1.0.0"
+                    tls-profile: ""
+                    target-url: "$(EndPoint)$(api.operation.path)"
+                - gatewayscript:
+                    title: "validateResponse"
+                    version: "1.0.0"
+                    source: "filterHeaders();\nvar bodymessage = apim.getvariable('message.body');\n\
+                      let meta = apim.getvariable('ctx.meta')\n\nif (bodymessage.hasOwnProperty(\"\
+                      errors\")) {\n    apim.setvariable('message.body', {\n     \
+                      \   meta, \n        errors: bodymessage.errors\n    });\n} else\
+                      \ { \n    let data = {\n        meta,\n        data: [\n   \
+                      \         {\n                header: {\n                   \
+                      \ type: 'Account-Balance',\n                    id: \"Account-Balance-\"\
+                      \ + meta._requestTimeStamp\n                },\n           \
+                      \     account: bodymessage.data.length > 0 ? bodymessage.data[0].account\
+                      \ : []\n            }\n        ],\n        links: {\n      \
+                      \      self: getLink()\n        }\n    }\n    apim.setvariable('message.body',\
+                      \ data);\n}\napim.output(\"application/vnd.bancolombia.v3+json;\
+                      \ charset=UTF-8\");\n\n\nfunction throwError(errorName, description,\
+                      \ code) {\n    apim.setvariable(\"ctx.errorData\", { description:\
+                      \ description, code: code });\n    description = description\
+                      \ || \"Internal Error\";\n    code = code || \"500\";\n    apim.error(errorName,\
+                      \ code, description, description);\n}\n\n//Retorna la url del\
+                      \ endpoint\nfunction getLink() {\n    let uri = apim.getvariable('request.uri');\n\
+                      \    uri = uri.replace(\"https://\", \"\");\n    uri = uri.slice(uri.indexOf(\"\
+                      /\"));\n    uri = \"https://\" + apim.getvariable(\"api.endpoint.hostname\"\
+                      ) + uri;\n    return uri;\n}\n\nfunction filterHeaders() {\n\
+                      \    let header_meta = require('header-metadata');\n    header_meta.current.headers\
+                      \ = {\n        \"Accept\": \"application/vnd.bancolombia.v3+json\"\
+                      ,\n        \"X-Content-Type-Options\": \"nosniff\",\n      \
+                      \  \"Content-Type\": \"application/vnd.bancolombia.v3+json;\
+                      \ charset=utf-8\",\n        \"X-API-Version\": apim.getvariable('api.version'),\n\
+                      \        \"X-RateLimit-Limit\": apim.getvariable('plan.rate-limit'),\n\
+                      \        \"Message-id\": apim.getvariable('ctx.uuid')\n    }\n\
+                      }"
+              version: "1.0.0"
+        - condition: "((request.verb==='POST')&&(api.operation.path==='/customer/accounts/balances'))"
+          execute:
+          - gatewayscript:
+              title: "Validate Request List Balance"
+              version: "1.0.0"
+              source: "let app =  apim.getvariable('client.app.name');     \r\nlet\
+                \ appName = app.trim(); \r\ngetConsumer(appName);\r\n\r\nlet requestbody\
+                \ = apim.getvariable('request.body');          \r\nif (validData(requestbody))\
+                \ {\r\n    let parameters = requestbody.data[0];\r\n    \r\n    if(validJSONObject(parameters,\
+                \ \"customer\")&& validJSONObject(parameters, \"pagination\") )\r\n\
+                \    {\r\n        if(validJSONObject(parameters.customer, \"identification\"\
+                )){\r\n            validateDomain([ \"CC\", \"CE\", \"NIT\", \"TI\"\
+                , \"PAS\", \"IEPN\", \"IEPJ\", \"FD\", \"RC\", \"CD\" ],\"type\",parameters.customer.identification.type,\
+                \ \"Tipo de identificación no válido\", true);\r\n            validateNumber(\"\
+                number\", parameters.customer.identification.number, 1 , 60 , true);\r\
+                \n        }\r\n        \r\n        if(parameters.account !== undefined)\r\
+                \n        {\r\n            if(parameters.account.participant !== undefined){\r\
+                \n                validateDomain([\"TITULAR\", \"COTITULAR\"] , \"\
+                relation\", parameters.account.participant.relation, \"relation. Campo\
+                \ no válido\", true)\r\n\r\n            }\r\n            \r\n    \
+                \        validateDomain([true,false] , \"allowDebit\" , parameters.account.allowDebit,\
+                \ \"allowDebit. Campo no válido\")\r\n            validateDomain([true,false]\
+                \ , \"allowCredit\" , parameters.account.allowCredit, \"allowCredit.\
+                \ Campo no válido\")\r\n            validateDomain([true,false] ,\
+                \ \"isClosed\" , parameters.account.isClosed,  \"isClosed. Campo no\
+                \ válido\")\r\n            \r\n            let specifications = parameters.account.specifications;\r\
+                \n            if(!isEmpty(specifications)){\r\n                for(let\
+                \ i = 0 ; i <specifications.length;i++){\r\n                    let\
+                \ aux =specifications[i];\r\n                    validateStringWithOutRegex(\"\
+                Specification name\"  ,aux.name, 0,50, true)\r\n                 \
+                \   validateDomain([true,false] , \"Specification value\" , aux.value,\
+                \ \"El campo specification value no es válido\", true)\r\n       \
+                \         }\r\n            }\r\n        }\r\n    \r\n        validateNumber(\"\
+                pagination size\", parameters.pagination.size, 1 , 2 , true);\r\n\
+                \        validateNumber(\"pagination key\", parameters.pagination.key,\
+                \ 1 , 3 , true);\r\n        \r\n        \r\n    }\r\n\r\n}\r\napim.setvariable('message.headers.messageId',\
+                \ apim.getvariable(\"ctx.meta._messageId\"));\r\napim.setvariable('message.headers.Authorization',\
+                \ apim.getvariable(\"api.properties.MicroAuth\"))\r\napim.setvariable('message.headers.content-type',\
+                \ 'application/json; charset=UTF-8')\r\napim.setvariable('message.body',\
+                \ requestbody);\r\n\r\nfunction validData(requestBody) {\r\n     \
+                \   var valid = true;\r\n        if (!requestBody) {\r\n         \
+                \   throwError(\"ParametersException\", \"Payload inválido\", 400);\r\
+                \n            valid = false;\r\n        } else {\r\n            if\
+                \ (!requestBody.hasOwnProperty('data')) {\r\n                throwError(\"\
+                ParametersException\", \"Parámetro data requerido\", 400);\r\n   \
+                \             valid = false;\r\n            } else {\r\n         \
+                \       if (!Array.isArray(requestBody.data) || requestBody.data.length\
+                \ == 0) {\r\n                    throwError(\"ParametersException\"\
+                , \"Parámetro data inválido\", 400);\r\n                    valid\
+                \ = false;\r\n                }\r\n            }\r\n        }\r\n\
+                \        return valid;\r\n    }\r\n//Validación de string \r\nfunction\
+                \ validateString(name, value, minLength = 0, maxLength = 256, required\
+                \ = false) {\r\n    var message;\r\n    var patternStr = /^[0-9a-zA-Zá\
+                éíóúñÁÉÍÚÓÑ#@.,-_\\s]+$/;\r\n    if (value && value != \"undefined\"\
+                \ && value != null) {\r\n        if(isNaN(value)){\r\n           \
+                \ value = value.trim();\r\n        }\r\n        if (value.length <\
+                \ minLength || value.length > maxLength) {\r\n            message\
+                \ = name + ' no cumple la longitud esperada.';\r\n        } else if\
+                \ (!patternStr.test(value)) {\r\n            message = 'Longitud del\
+                \ parámetro ' + name + ' inválida';\r\n        }\r\n    } else if\
+                \ (required) {\r\n        message = 'Uno de los campos requerido no\
+                \ fue recibido.';\r\n    }\r\n    if (message) {\r\n        throwError('ParametersException',\
+                \ message, '400');\r\n        return false;\r\n    }\r\n    return\
+                \ true;\r\n}\r\n\r\n//Validar si un valor es número o no.\r\nfunction\
+                \ validateNumber(name, value, minLength = 0, maxLength = 256, required\
+                \ = false) {\r\n    var message;\r\n    var valid = true;\r\n    if\
+                \ (!isEmpty(value)) {\r\n        var vecValue = value.toString().split(\"\
+                .\");\r\n        if (isNaN(value) || vecValue[1] > -1) {\r\n     \
+                \       message = name + ' no cumple con el formato esperado.';\r\n\
+                \        } else if (value.length < minLength || value.length > maxLength)\
+                \ {\r\n            message = 'Longitud del parámetro ' + name + '\
+                \ inválida ' + value;\r\n        }\r\n    } else if (required) {\r\
+                \n        message = 'Parámetro ' + name + ' requerido';\r\n    }\r\
+                \n    if (message) {\r\n        throwError('ParametersException',\
+                \ message, '400');\r\n        valid = false;\r\n    }\r\n    return\
+                \ valid;\r\n}\r\n\r\n//Validar numeros decimales y cifras enteras\
+                \ \r\nfunction validateFloat(name, value, quantityInt = 0, quantityDec\
+                \ = 256, required = false) {\r\n    var message;\r\n    var valid\
+                \ = true;\r\n\r\n    if (!isEmpty(value)) {\r\n        var vecValue\
+                \ = value.toString().split(\".\");\r\n        if (isNaN(value) ||\
+                \ vecValue[1] === undefined) {\r\n            message = name + ' no\
+                \ cumple con el formato esperado.';\r\n        } else if (vecValue[0].length\
+                \ > quantityInt || vecValue[1].length > quantityDec) {\r\n       \
+                \     message = 'Longitud del parámetro ' + name + ' inválida ' +\
+                \ value;\r\n        }\r\n    } else if (required) {\r\n        message\
+                \ = 'Parámetro ' + name + ' requerido';\r\n    }\r\n    if (message)\
+                \ {\r\n        throwError('ParametersException', message, '400');\r\
+                \n        valid = false;\r\n    }\r\n    return valid;\r\n}\r\n\r\n\
+                //Validación de un valor dentro de un dominio \r\nfunction validateDomain(domain,\
+                \ key, value, message, required=false) {\r\n    if(isEmpty(value)){\r\
+                \n      if(required==false){\r\n        return;\r\n      }\r\n   \
+                \ } \r\n      if (domain.indexOf(value) <= -1) {\r\n          if (message)\
+                \ {\r\n              throwError('ParametersException', message, 400);\r\
+                \n          } else {\r\n              throwError('ParametersException',\
+                \ 'Parameter ' + key + ' es inválido.', 400);\r\n          }\r\n \
+                \     } else {\r\n            return true;\r\n      }\r\n}\r\n\r\n\
+                //Validación de un JSON Object \r\nfunction validJSONObject(requestBody,\
+                \ property) {\r\n    if (!requestBody.hasOwnProperty(property) ||\
+                \ requestBody[property] == \"undefined\") {\r\n        throwError(\"\
+                ParametersException\", \"Parámetro \" + property + \" requerido\"\
+                , 400);\r\n        return false;\r\n    } else {\r\n        if (!requestBody[property]\
+                \ || requestBody[property] == null || !(requestBody[property] instanceof\
+                \ Object)) {\r\n            throwError(\"ParametersException\", \"\
+                Parámetro \" + property + \" inválido\", 400);\r\n            return\
+                \ false;\r\n        }else{\r\n            return true;\r\n       \
+                \ }\r\n    }\r\n}\r\n\r\n//Validación de un JSON Array\r\nfunction\
+                \ validJSONArray(requestBody, property){\r\n    if(!requestBody.hasOwnProperty(property)\
+                \ || requestBody[property] == \"undefined\"){\r\n        throwError(\"\
+                ParametersException\",\"Parámetro \" + property + \" requerido\",400);\r\
+                \n        return false;\r\n    }else{\r\n        if(!requestBody[property]\
+                \ || requestBody[property] == null || !Array.isArray(requestBody[property])){\r\
+                \n            throwError(\"ParametersException\",\"Parámetro \" +\
+                \ property + \" inválido\",400);\r\n            return false;\r\n\
+                \        }else{\r\n            return true;\r\n        }\r\n    }\r\
+                \n}\r\n\r\n//Validación de formato de fechas YYYY-DD-MM \r\nfunction\
+                \ validateDate(value, required = false) {\r\n    if(required == true){\r\
+                \n        var validate = true;\r\n        var pattern = /^((2[0-9]|19)[0-9]{2})-(1[0-2]|0[1-9])-(0[1-9]|[12][0-9]|3[01])$/;\r\
+                \n        if (!pattern.test(value)) {\r\n            throwError(\"\
+                ParametersException\", \"Formato fecha no es inválido\", 400);\r\n\
+                \            validate = false;\r\n        }           \r\n    }\r\n\
+                \    return validate;\r\n}\r\n\r\n//Validación de string sin expresió\
+                n regular \r\nfunction validateStringWithOutRegex(name, value, minLength\
+                \ = 0, maxLength = 256, required = false) {\r\n    var message;\r\n\
+                \    if (value && value != \"undefined\") {\r\n        value = value.trim();\r\
+                \n        if (value.length < minLength || value.length > maxLength)\
+                \ {\r\n            message = 'Longitud del parámetro ' + name + '\
+                \ inválida';\r\n        }\r\n    } else if (required) {\r\n      \
+                \  message = 'Parámetro ' + name + ' requerido';\r\n    }\r\n    if\
+                \ (message) {\r\n        throwError('ParametersException', message,\
+                \ '400');\r\n        return false;\r\n    }\r\n    return true;\r\n\
+                }\r\n//Validar una fecha ingresada con una fecha actual \r\nfunction\
+                \ validateDateCurrent(dateRequest) {\r\n    var dateCurrent = new\
+                \ Date();\r\n    var dateAux = dateRequest.split(\"-\");\r\n    var\
+                \ date = new Date(parseInt(dateAux[0]), parseInt(dateAux[1] - 1),\
+                \ parseInt(dateAux[2]));\r\n    // Comparamos solo las fechas => no\
+                \ las horas!! \r\n    dateCurrent.setHours(0, 0, 0, 0);\r\n    date.setHours(0,\
+                \ 0, 0, 0);\r\n    // Lo iniciamos a 00:00 horas \r\n    if (date\
+                \ > dateCurrent) {\r\n        throwError(\"ParametersException\",\
+                \ 'La fecha del documento es superior a la fecha actual.\"', 400);\r\
+                \n    }\r\n}\r\n\r\nfunction numberFloat(value, tenths) {\r\n    return\
+                \ Number.parseFloat(value).toFixed(tenths).toString();\r\n}\r\n\r\n\
+                //concatenar ceros a la izquierda\r\nfunction concatZeroLeft(value,\
+                \ quantityInt){\r\n  let int = value.split('.')[0]\r\n\r\n  if(int==0){\r\
+                \n    return '000000000000'+value;\r\n  }else{\r\n    let newFinalAmount\
+                \ = value;\r\n      for(let i=0;i<(quantityInt-int.length);i++){\r\
+                \n        newFinalAmount = '0' + newFinalAmount;\r\n      }\r\n  \
+                \          return newFinalAmount;\r\n    }\r\n}\r\n\r\n//validacion\
+                \ de un valor como nit\r\nfunction validateNIT(value) {\r\n    let\
+                \ patternStr = /^([0-9]{9}-[0-9]{1})?$/;\r\n    if (!patternStr.test(value))\
+                \ {\r\n        throwError('ParametersException', 'El NIT no tiene\
+                \ la estructura esperada.', '400');\r\n    }\r\n}\r\n\r\n//Validació\
+                n de un valor vacio, nulo o indefinido\r\nfunction isEmpty(str) {\r\
+                \n    return (str == null || str == \"undefined\"|| 0 === str.length\
+                \ || str == \" \");\r\n}\r\n\r\nfunction getRequestDate() {\r\n  \
+                \  var systemTime = new Date();\r\n    systemTime = new Date(systemTime.getTime()\
+                \ - (3600 * 5000));\r\n    return systemTime.toISOString();\r\n}\r\
+                \n//Lanza excepciones y guarda el codigo y la descripcion del error\
+                \ en una variable de contexto \r\nfunction throwError(errorName, description,\
+                \ code) {\r\n    apim.setvariable(\"ctx.errorData\", {\r\n       \
+                \ description: description,\r\n        code: code\r\n    });\r\n \
+                \   description = description || \"Internal Error\";\r\n    code =\
+                \ code || \"500\";\r\n    apim.error(errorName, code, description,\
+                \ description);\r\n}\r\n\r\nfunction getConsumer(appName){\r\n   \
+                \ try{\r\n        let name = appName.split('_');\r\n        let ident\
+                \ = name[1];\r\n        let nombre = name[0];\r\n        if (ident)\
+                \ {\r\n            apim.setvariable('ctx.consumer', ident);\r\n  \
+                \          apim.setvariable('ctx.appName', nombre);\r\n        } else\
+                \ {\r\n            throwError('ParametersException','Identificació\
+                n de aplicación inválido','409');\r\n        }\r\n    }catch(exception){\r\
+                \n        throwError('ParametersException','Identificación de aplicació\
+                n inválido','409');\r\n    }\r\n}"
+          - switch:
+              title: "switch"
+              case:
+              - condition: "$(env.path)=='sandbox'"
+                execute:
+                - gatewayscript:
+                    title: "create-sandbox"
+                    version: "1.0.0"
+                    source: "filterHeaders();\nlet requestbody = apim.getvariable('request.body');\
+                      \ \nlet documentNumber = requestbody.data[0].customer.identification.number;\n\
+                      \nlet meta = apim.getvariable('ctx.meta')\n\nlet data = {};\n\
+                      \nif(documentNumber == \"000000000517852\"){\n    meta._responseSize\
+                      \ = 1;\n    meta._flagMoreRecords = 1;\n    data = {\n     \
+                      \   meta,\n        data: [\n            {\n                header:\
+                      \ {\n                    type: 'Account-Balance',\n        \
+                      \            id: \"Account-Balance-\" + meta._requestTimeStamp\n\
+                      \                },\n                account:       {\n    \
+                      \                 type: \"D|000000000517852\",\n           \
+                      \          number: \"100014434\",\n                     balanceResponse:\
+                      \          {\n                        available: -777,\n   \
+                      \                     availableOverdraftBalance: 222,\n    \
+                      \                    overdraftValue: 999,\n                \
+                      \        availableOverdraftQuota: 111,\n                   \
+                      \     cash: 888,\n                        clearing: 777,\n \
+                      \                       receivable: 555,\n                 \
+                      \       blocked: 1110,\n                        clearingStartDay:\
+                      \ 333,\n                        cashStartDay: 222,\n       \
+                      \                 pockets: 444,\n                        remittanceQuota:\
+                      \ 111,\n                        agreedRemittanceQuota: 1234,\n\
+                      \                        remittanceQuotaUsage: 12345,\n    \
+                      \                    normalInterest: 0,\n                  \
+                      \      suspensionInterest: 0\n                     },\n    \
+                      \                 participant: {relation: \"Y\"}\n         \
+                      \       }\n            }\n        ],\n        links: {\n   \
+                      \         self: getLink()\n        }\n    }\n}else{\n    data\
+                      \ = {\n        meta,\n        errors: [{\n           id: \"\
+                      3240f1ee-284a-4e25-bb7b-418dc2b33fb7\",\n           href: \"\
+                      https://tools.ietf.org/html/rfc7231#section-6.5.4\",\n     \
+                      \      status: 404,\n           code: \"BP12900003\",\n    \
+                      \       title: \"Not Found\",\n           detail: \"Balance\
+                      \ Not Found in DynamoDB\"\n        }]\n    }\n    \n    apim.setvariable('message.status.code',\
+                      \ 404);\n}\n\napim.setvariable('message.body', data);\napim.output(\"\
+                      application/vnd.bancolombia.v3+json; charset=UTF-8\");\n\n\n\
+                      function throwError(errorName, description, code) {\n    apim.setvariable(\"\
+                      ctx.errorData\", { description: description, code: code });\n\
+                      \    description = description || \"Internal Error\";\n    code\
+                      \ = code || \"500\";\n    apim.error(errorName, code, description,\
+                      \ description);\n}\n\n//Retorna la url del endpoint\nfunction\
+                      \ getLink() {\n    let uri = apim.getvariable('request.uri');\n\
+                      \    uri = uri.replace(\"https://\", \"\");\n    uri = uri.slice(uri.indexOf(\"\
+                      /\"));\n    uri = \"https://\" + apim.getvariable(\"api.endpoint.hostname\"\
+                      ) + uri;\n    return uri;\n}\n\nfunction filterHeaders() {\n\
+                      \    let header_meta = require('header-metadata');\n    header_meta.current.headers\
+                      \ = {\n        \"Accept\": \"application/vnd.bancolombia.v3+json\"\
+                      ,\n        \"X-Content-Type-Options\": \"nosniff\",\n      \
+                      \  \"Content-Type\": \"application/vnd.bancolombia.v3+json;\
+                      \ charset=utf-8\",\n        \"X-API-Version\": apim.getvariable('api.version'),\n\
+                      \        \"X-RateLimit-Limit\": apim.getvariable('plan.rate-limit'),\n\
+                      \        \"Message-id\": apim.getvariable('ctx.uuid')\n    }\n\
+                      }"
+              - otherwise:
+                - invoke:
+                    title: "invoke"
+                    timeout: 5
+                    verb: "POST"
+                    cache-response: "protocol"
+                    cache-ttl: 900
+                    stop-on-error:
+                    - "ConnectionError"
+                    version: "1.0.0"
+                    tls-profile: ""
+                    target-url: "$(EndPoint)$(api.operation.path)"
+                - gatewayscript:
+                    title: "validateResponse"
+                    version: "1.0.0"
+                    source: "filterHeaders();\nvar bodymessage = apim.getvariable('message.body');\n\
+                      let meta = apim.getvariable('ctx.meta')\n\nif (bodymessage.hasOwnProperty(\"\
+                      errors\")) {\n    apim.setvariable('message.body', {\n     \
+                      \   meta, \n        errors: bodymessage.errors\n    });\n} else\
+                      \ {\n    meta._responseSize = bodymessage.responseSize;\n  \
+                      \  meta._flagMoreRecords = bodymessage.flagMoreRecords;\n  \
+                      \  let accounts = [];\n    for(var i = 0; i < bodymessage.data.length;\
+                      \ i++){\n        accounts.push({\n            header: {\n  \
+                      \              type: 'Account-Balance',\n                id:\
+                      \ \"Account-Balance-\" + meta._requestTimeStamp\n          \
+                      \  },\n            account: bodymessage.data[i].account\n  \
+                      \      })\n    }\n    let data = {\n        meta,\n        data:\
+                      \ accounts,\n        links: {\n            self: getLink()\n\
+                      \        }\n    }\n    apim.setvariable('message.body', data);\n\
+                      }\napim.output(\"application/vnd.bancolombia.v3+json; charset=UTF-8\"\
+                      );\n\n\nfunction throwError(errorName, description, code) {\n\
+                      \    apim.setvariable(\"ctx.errorData\", { description: description,\
+                      \ code: code });\n    description = description || \"Internal\
+                      \ Error\";\n    code = code || \"500\";\n    apim.error(errorName,\
+                      \ code, description, description);\n}\n\n//Retorna la url del\
+                      \ endpoint\nfunction getLink() {\n    let uri = apim.getvariable('request.uri');\n\
+                      \    uri = uri.replace(\"https://\", \"\");\n    uri = uri.slice(uri.indexOf(\"\
+                      /\"));\n    uri = \"https://\" + apim.getvariable(\"api.endpoint.hostname\"\
+                      ) + uri;\n    return uri;\n}\n\nfunction filterHeaders() {\n\
+                      \    let header_meta = require('header-metadata');\n    header_meta.current.headers\
+                      \ = {\n        \"Accept\": \"application/vnd.bancolombia.v3+json\"\
+                      ,\n        \"X-Content-Type-Options\": \"nosniff\",\n      \
+                      \  \"Content-Type\": \"application/vnd.bancolombia.v3+json;\
+                      \ charset=utf-8\",\n        \"X-API-Version\": apim.getvariable('api.version'),\n\
+                      \        \"X-RateLimit-Limit\": apim.getvariable('plan.rate-limit'),\n\
+                      \        \"Message-id\": apim.getvariable('ctx.uuid')\n    }\n\
+                      }"
+              version: "1.0.0"
+        - condition: "((request.verb==='HEAD')&&(api.operation.path==='/account-balances/health'))"
+          execute:
+          - gatewayscript:
+              title: "set-headers"
+              version: "1.0.0"
+              source: "apim.setvariable('message.headers.Accept','application/vnd.bancolombia.v3+json');\r\
+                \napim.setvariable('message.headers.Content-Type','application/vnd.bancolombia.v3+json');\r\
+                \napim.setvariable('message.headers.X-Content-Type-Options','nosniff');\r\
+                \napim.setvariable('message.headers.X-API-Version', apim.getvariable('api.version'));"
+        version: "1.0.0"
+    catch:
+    - errors:
+      - "ParametersException"
+      execute:
+      - gatewayscript:
+          title: "parameters exception"
+          version: "1.0.0"
+          source: "filterHeaders();\n \nconst errorData = apim.getvariable('ctx.errorData');\n\
+            apim.setvariable(\"message.status.code\", errorData.code);\n \nconst failure\
+            \ = {\n    meta: apim.getvariable('ctx.meta'),\n    errors:[\n       \
+            \ {\n            href: 'https://tools.ietf.org/html/rfc7231#section-6.5.1',\n\
+            \            status: errorData.code || '400',\n            code: 'SA400',\n\
+            \            title: apim.getvariable(\"message.status.reason\"),\n   \
+            \         detail: errorData.description\n        }\n    ]\n}\n\napim.setvariable(\"\
+            message.body\", failure);\napim.output(\"application/vnd.bancolombia.v3+json;\
+            \ charset=utf-8\");\n\nfunction filterHeaders() {\n    let header_meta\
+            \ = require('header-metadata');\n    header_meta.current.headers = {\n\
+            \        \"Accept\": \"application/vnd.bancolombia.v3+json\",\n      \
+            \  \"X-Content-Type-Options\": \"nosniff\",\n        \"Content-Type\"\
+            : \"application/vnd.bancolombia.v3+json; charset=utf-8\",\n        \"\
+            X-API-Version\": apim.getvariable('api.version'),\n        \"X-RateLimit-Limit\"\
+            : apim.getvariable('plan.rate-limit'),\n        \"Message-id\": apim.getvariable('ctx.uuid')\n\
+            \    }\n}"
+    - errors:
+      - "ConnectionError"
+      execute:
+      - gatewayscript:
+          title: "connection error"
+          version: "1.0.0"
+          source: "filterHeaders();\r\n\r\napim.setvariable(\"message.status.code\"\
+            , '504');\r\n  \r\nconst failure = {\r\n    meta: apim.getvariable('ctx.meta'),\r\
+            \n    errors:[\r\n        {\r\n            href: 'https://tools.ietf.org/html/rfc7231#section-6.6.5',\r\
+            \n            status: '504',\r\n            code: 'SP504',\r\n       \
+            \     title: apim.getvariable(\"message.status.reason\"),\r\n        \
+            \    detail: 'Tiempo de respuesta del proveedor del servicio excedido'\r\
+            \n        }\r\n    ]\r\n}\r\n\r\napim.setvariable(\"message.body\", failure);\r\
+            \napim.output(\"application/vnd.bancolombia.v3+json; charset=utf-8\");\r\
+            \n\r\nfunction filterHeaders() {\r\n    let header_meta = require('header-metadata');\r\
+            \n    header_meta.current.headers = {\r\n        \"Accept\": \"application/vnd.bancolombia.v3+json\"\
+            ,\r\n        \"X-Content-Type-Options\": \"nosniff\",\r\n        \"Content-Type\"\
+            : \"application/vnd.bancolombia.v3+json; charset=utf-8\",\r\n        \"\
+            X-API-Version\": apim.getvariable('api.version'),\r\n        \"X-RateLimit-Limit\"\
+            : apim.getvariable('plan.rate-limit'),\r\n        \"Message-id\": apim.getvariable('ctx.uuid')\r\
+            \n    }\r\n}"
+    - errors:
+      - "BusinessException"
+      execute:
+      - gatewayscript:
+          title: "BusinessException"
+          version: "1.0.0"
+          source: "const statusHrefs = {\r\n    '400': 'https://tools.ietf.org/html/rfc7231#section-6.5.1',\r\
+            \n    '404': 'https://tools.ietf.org/html/rfc7231#section-6.5.4'\r\n}\
+            \ \r\n    \r\n//homologación de códigos de excepción\r\nconst serverCodes\
+            \ = {\r\n    '12900001': '400',\r\n    '12900002': '400',\r\n    '12900003':\
+            \ '404',\r\n    '12900004': '400',\r\n    '12900005': '400',\r\n    '12900006':\
+            \ '400',\r\n    '12900008': '404',\r\n    '12900009': '400',\r\n    '12900010':\
+            \ '404',\r\n    '9999': '400'\r\n}\r\n\r\nconst errorData = apim.getvariable('ctx.errorData');\r\
+            \n\r\n//Se homologa el code en caso de estar identificado\r\nlet code\
+            \ = serverCodes.hasOwnProperty(errorData.code)? serverCodes[errorData.code]\
+            \ : '502';\r\n\r\n//Si no se tiene un title para el code se asigna un\
+            \ code 502\r\nif(!statusHrefs.hasOwnProperty(code)){\r\n    code = '502';\r\
+            \n}\r\n\r\napim.setvariable(\"message.status.code\", code);\r\nlet descdetail\
+            \ = (code == '502') ? 'MENSAJE INESPERADO RECIBIDO DEL SERVIDOR' : errorData.description;\r\
+            \n\r\nlet failure = {\r\n    meta: apim.getvariable('ctx.meta'),\r\n \
+            \   errors:[\r\n        {\r\n            href: statusHrefs[code],\r\n\
+            \            status: code,\r\n            code: 'BP' + errorData.code,\r\
+            \n            title: apim.getvariable(\"message.status.reason\"),\r\n\
+            \            detail: descdetail\r\n        }\r\n    ]\r\n}\r\n\r\napim.setvariable(\"\
+            message.body\", failure);\r\napim.output(\"application/vnd.bancolombia.v3+json\"\
+            );\r\nfilterHeaders();\r\n\r\nfunction filterHeaders() {\r\n    let header_meta\
+            \ = require('header-metadata');\r\n    header_meta.current.headers = {\r\
+            \n        \"X-Content-Type-Options\": \"nosniff\",\r\n        \"Content-Type\"\
+            : \"application/vnd.bancolombia.v3+json; charset=utf-8\",\r\n        \"\
+            X-API-Version\": apim.getvariable('api.version'),\r\n        \"X-RateLimit-Limit\"\
+            : apim.getvariable('plan.rate-limit'),\r\n        \"Message-id\": apim.getvariable('ctx.uuid')\r\
+            \n    }\r\n}"
+    - errors:
+      - "SystemException"
+      execute:
+      - gatewayscript:
+          title: "SystemException"
+          version: "1.0.0"
+          source: "const statusHrefs = {\r\n    \r\n    '401': 'https://tools.ietf.org/html/rfc7235#section-3.1',\r\
+            \n    '409': 'https://tools.ietf.org/html/rfc7231#section-6.5.8',\r\n\
+            \    '502': 'https://tools.ietf.org/html/rfc7231#section-7.1.3',\r\n \
+            \   '503': 'https://tools.ietf.org/html/rfc7231#section-6.6.4',\r\n  \
+            \  '504': 'https://tools.ietf.org/html/rfc7231#section-6.6.5',\r\n   \
+            \ '400': 'https://tools.ietf.org/html/rfc7231#section-6.5.1',\r\n    '404':\
+            \ 'https://tools.ietf.org/html/rfc7231#section-6.5.4',\r\n    '500': 'https://tools.ietf.org/html/rfc7231#section-6.6.1'\r\
+            \n} \r\n    \r\n//homologación de códigos de excepción\r\nconst serverCodes\
+            \ = {\r\n    '12900007': '500'\r\n}\r\n\r\nconst errorData = apim.getvariable('ctx.errorData');\r\
+            \n\r\n//Se homologa el code en caso de estar identificado\r\nlet code\
+            \ = serverCodes.hasOwnProperty(errorData.code)? serverCodes[errorData.code]\
+            \ : '500';\r\n\r\n//Si no se tiene un title para el code se asigna un\
+            \ code 500\r\nif(!statusHrefs.hasOwnProperty(code)){\r\n    code = '500';\r\
+            \n}\r\n\r\napim.setvariable(\"message.status.code\", code);\r\nlet descdetail\
+            \ = (code == '500') ? 'MENSAJE INESPERADO RECIBIDO DEL SERVIDOR' : errorData.description;\r\
+            \n\r\nlet failure = {\r\n    meta: apim.getvariable('ctx.meta'),\r\n \
+            \   errors:[\r\n        {\r\n            href: statusHrefs[code],\r\n\
+            \            status: code,\r\n            code: 'SP' + errorData.code,\r\
+            \n            title: apim.getvariable(\"message.status.reason\"),\r\n\
+            \            detail: descdetail\r\n        }\r\n    ]\r\n}\r\n\r\napim.setvariable(\"\
+            message.body\", failure);\r\napim.output(\"application/vnd.bancolombia.v3+json\"\
+            );\r\nfilterHeaders();\r\n\r\nfunction filterHeaders() {\r\n    let header_meta\
+            \ = require('header-metadata');\r\n    header_meta.current.headers = {\r\
+            \n        \"X-Content-Type-Options\": \"nosniff\",\r\n        \"Content-Type\"\
+            : \"application/vnd.bancolombia.v3+json; charset=utf-8\",\r\n        \"\
+            X-API-Version\": apim.getvariable('api.version'),\r\n        \"X-RateLimit-Limit\"\
+            : apim.getvariable('plan.rate-limit'),\r\n        \"Message-id\": apim.getvariable('ctx.uuid')\r\
+            \n    }\r\n}"
+    - default:
+      - gatewayscript:
+          title: "default-exception"
+          version: "1.0.0"
+          source: "const statusHrefs = {\n    '401': 'https://tools.ietf.org/html/rfc7235#section-3.1',\n\
+            \    '409': 'https://tools.ietf.org/html/rfc7231#section-6.5.8',\n   \
+            \ '502': 'https://tools.ietf.org/html/rfc7231#section-7.1.3',\n    '503':\
+            \ 'https://tools.ietf.org/html/rfc7231#section-6.6.4',\n    '504': 'https://tools.ietf.org/html/rfc7231#section-6.6.5',\n\
+            \    '400': 'https://tools.ietf.org/html/rfc7231#section-6.5.1',\n   \
+            \ '404': 'https://tools.ietf.org/html/rfc7231#section-6.5.4',\n    '500':\
+            \ 'https://tools.ietf.org/html/rfc7231#section-6.6.1'\n} \n\nlet status=\
+            \ apim.getvariable('message.status.code');\nlet title= apim.getvariable(\"\
+            message.status.reason\");\nlet detail= \"Ha ocurrido un error inesperado\"\
+            ;\nif(!statusHrefs.hasOwnProperty(status)){\n    status = '500';\n}\n\
+            let code= 'SP'+status;\nlet href= statusHrefs[status];\nlet failure =\
+            \ {\n    meta: apim.getvariable('ctx.meta'),\n    errors:[\n        {\n\
+            \            href,\n            status,\n            code,\n         \
+            \   title,\n            detail\n        }\n    ]\n}\n\napim.setvariable(\"\
+            message.body\", failure);\napim.output(\"application/vnd.bancolombia.v3+json\"\
+            );\nfilterHeaders();\n\nfunction filterHeaders(){\n    let header_meta\
+            \ = require('header-metadata');\n    header_meta.current.headers = {\n\
+            \        \"Content-Type\": \"application/xml; charset=utf-8\",\n     \
+            \   \"X-API-Version\": apim.getvariable('api.version'),\n        \"X-RateLimit-Limit\"\
+            : apim.getvariable('plan.rate-limit'),\n        \"X-Content-Type-Options\"\
+            : \"nosniff\",\n        \"Message-id\": apim.getvariable('ctx.uuid')\n\
+            \    }\n}"
+  gateway: "datapower-gateway"
+securityDefinitions:
+  ClientSecret:
+    type: "apiKey"
+    description: ""
+    in: "header"
+    name: "X-IBM-Client-Secret"
+  ClientId:
+    type: "apiKey"
+    in: "header"
+    name: "X-IBM-Client-Id"
+    description: "Identificación de la aplicación consumidora usando el client_id"
+x-comentarios-de-cambios:
+  versions: []
+x-ibm-endpoints:
+- endpointUrl: "https://internal-apigateway-dev.bancolombia.corp/int/development"
+  type:
+  - "production"
+  - "development"
+x-API-Authors:
+  Design:
+    name: "Johnatan Estiven Arcila Garces"
+    email: "jearcila@bancolombia.com.co"
+  Development:
+    name: ""
+    email: ""
+  Review:
+    name: ""
+    email: ""

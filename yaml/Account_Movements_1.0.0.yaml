@@ -1,0 +1,356 @@
+openapi: 3.0.0
+info:
+  title: "Practica_Saldos_Mas_Movimientos"
+  description: "Ejercicio de Konoha que permite consultar los saldos consolidados de los productos y la consulta de movimientos de cuenta de depósitos para un cliente"
+  version: 1.0.0
+tags:
+  - name: "Practica_Saldos_Mas_Movimientos"
+    description: "Servicio de Accounts Balance"
+  
+
+paths:
+  
+  # --------------------------------
+  # Health
+  # --------------------------------
+  /deposit/health:
+    get:
+      tags:
+        - "Salud del servicio"
+      summary: "Operación para verificar la salud del servicio"
+      description: "Operación para verificar la salud del servicio"
+      responses:
+        200:
+          description: "200 ok"
+
+          content:
+            application/vnd.bancolombia.v2+json:
+              schema:
+                type: "object"
+                $ref: "#/components/schemas/health"
+
+  # --------------------------------
+  # Consulta de movimientos cuenta de deposito
+  # --------------------------------
+  /deposit/movements:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - "Movimientos cuenta deposito"
+      summary: "Consulta la información de saldos y movimientos de una cuenta de depositos"
+      description: "Consulta la información de saldos y movimientos de una cuenta de depositos"
+      parameters:
+        - in: header
+          name: Transaction-Tracker
+          schema:
+            type: string
+            format: uuid
+            example: "11115390600003062472"
+          description: "ID para trazabilidad de la transacción ante logs. Debe ser proporcionado el front. Se debe usar el mismo TRUNID legacy y ser único por transacción."
+          required: true
+          
+      requestBody:
+        required: true
+        description: ""
+        content:
+          application/vnd.bancolombia.v2+json:
+            schema:
+              $ref: '#/components/schemas/RequestAccountMovements'
+
+      responses:
+        200:
+          description: "TRANSACCIÓN EXITOSA"
+          
+          content:
+            application/vnd.bancolombia.v2+json:
+              schema:
+                type: "object"
+                $ref: "#/components/schemas/ResponseAccountMovements"
+        default:
+            description: "Mensaje de error por defecto"
+            content:
+              application/vnd.bancolombia.v2+json:
+                schema:
+                  type: object
+                  properties:
+                    status:
+                      type: object
+                      $ref: "#/components/schemas/Error"
+
+
+# --------------------------------
+# COMPONENTS
+# -------------------------------- 
+components:
+  
+  # --------------------------------
+  # SCHEMES - SECURITY
+  # --------------------------------  
+  securitySchemes:
+    bearerAuth:
+      type: "http"
+      scheme: "bearer"
+      bearerFormat: "JWT"
+
+  # --------------------------------
+  # SCHEMES
+  # --------------------------------  
+  schemas:
+
+  # --------------------------------
+  # Schemas - Health
+  # -------------------------------- 
+    health:
+      type: "object"
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          description: "Estatus del servicio"
+          example: "UP"
+  # -----------------------------------------
+  # SCHEMES - REQUEST DEPOSIT ACCOUNT MOVEMENTS
+  # -----------------------------------------    
+    RequestAccountMovements:
+      type: object
+      required:
+      - data
+      properties:
+        data:
+          type: array
+          uniqueItems: true
+          items:
+            required:
+            - pagination
+            - account
+            - transaction
+            - office
+            properties:
+              pagination:
+                $ref: '#/components/schemas/pagination'
+              account:
+                $ref: '#/components/schemas/account'
+              transaction:
+                $ref: '#/components/schemas/transaction' 
+              office:
+                $ref: '#/components/schemas/office'
+
+  # -----------------------------------------
+  # SCHEMES - RESPONSE DEPOSIT ACCOUNT MOVEMENTS
+  # -----------------------------------------    
+    ResponseAccountMovements:
+      type: object
+      required:
+      - data
+      properties:
+        data:
+          $ref: '#/components/schemas/depositAccountMovements'
+                
+                
+  # --------------------------------
+  # SCHEMES - PAGINATION
+  # --------------------------------    
+    pagination:
+      type: object
+      required:
+       - key
+      properties:
+        size:
+          type: number
+          description: "Cantidad de registros por pagina"
+          example: 20
+        key:
+          type: number
+          description: "Numero de la página"
+          example: 1
+
+                
+  # --------------------------------
+  # SCHEMES - ACCOUNT
+  # --------------------------------    
+    account:
+      type: object
+      required:
+       - type
+       - number
+      properties:
+        type:
+          type: string
+          description: "Tipo de cuenta"
+          example: "CUENTA_CORRIENTE"
+          enum:
+          - CUENTA_DE_AHORRO
+          - CUENTA_CORRIENTE
+        number:
+          type: string
+          description: "Numero de cuenta"
+          example: "10115447858"
+          
+  # --------------------------------
+  # SCHEMES - TRANSACTION
+  # --------------------------------    
+    transaction:
+      type: object
+      properties:
+        startDate:
+          type: string
+          description: "Fecha inicial de consulta"
+          example: "2020-01-01"
+        endDate:
+          type: string
+          description: "Fecha final de consulta"
+          example: "2020-01-30"
+        minAmount:
+          type: number
+          description: "Valor inicial de consulta"
+          example: null
+        maxAmount:
+          type: number
+          description: "Valor final de consulta"
+          example: null
+        type:
+          type: string
+          description: "Tipo de Movimiento"
+          example: null
+          enum:
+          - DEBITO
+          - CREDITO
+        checkNumber:
+          type: string
+          description: "Numero de cheque"
+          example: null
+        group:
+          type: string
+          description: "Grupo del movimiento"
+          example: null
+        description:
+          type: string
+          description: "Descripcion del movimiento"
+          example: "Pago Nomina"
+  
+  # --------------------------------
+  # SCHEMES - DEPOSIT ACCOUNT MOVEMENTS
+  # -------------------------------- 
+
+    depositAccountMovements:
+      type: array
+      items:
+        properties:
+            transaction:
+              $ref: '#/components/schemas/depositAccountTransaction'
+            office:
+              $ref: '#/components/schemas/office'
+            relatedTransferAccount:
+              $ref: '#/components/schemas/account'
+            customer:
+              $ref: '#/components/schemas/customer'
+            _responseSize:
+              type: number
+              description: "Total de registros"
+              example: 40
+            _flagMoreRecords:
+              type: boolean
+              description: "Indica si existen mas registros"
+              example: true
+          
+  # --------------------------------
+  # SCHEMES - CUSTOMER
+  # --------------------------------    
+    customer:
+      type: object
+      properties:
+        name:
+          type: string
+          description: "Nombre del cliente titular"
+          example: "Ferney Felipe Vanegas"
+  # --------------------------------
+  # SCHEMES - DEPOSIT ACCOUNT TRANSACTION
+  # -------------------------------- 
+    depositAccountTransaction:
+      type: array
+      items:
+        required:
+          - postedDate 
+          - description
+          - amount
+        properties:
+            id:
+              type:  string
+              description: "Codigo de la transacción"
+              example: "8316"
+            postedDate :
+              type:  string
+              description: "Fecha del movimiento"
+              example: "2020-03-01"
+            description:
+              type:  string
+              description: "Descripcion del movimiento"
+              example: "Abono preautorizado donación"
+            amount:
+              type:  number
+              description: "Valor del movimiento"
+              example: 12,400.0000
+            type:
+              type:  string
+              description: "Tipo de movimiento"
+              example: "DEBITO"
+            reference1:
+              type:  string
+              description: "Referencia movimiento 1"
+              example: null
+            reference2:
+              type:  string
+              description: "Referencia movimiento 2"
+              example: null
+            reference3:
+              type:  string
+              description: "Referencia movimiento 3"
+              example: null
+            checkNumber:
+              type:  string
+              description: "Numero del cheque"
+              example: null
+
+              
+  # --------------------------------
+  # SCHEMES - OFFICE
+  # -------------------------------- 
+    office:
+      type: object
+      properties:
+          code: 
+              type:  string
+              description: "Código de la sucursal dueña de la cuenta"
+              example: "406"
+          name:
+              type: string
+              description: "Nombre de la oficina"
+              example: "Direccion General"
+  
+  # --------------------------------
+  # SCHEMES - ERROR
+  # -------------------------------- 
+    Error:
+      type: object
+      description: "Estructura general de errores"
+      properties:
+        code:
+          description: 'An application-specific error code, expressed as a string value.'
+          type: string
+          example: 401
+        title:
+          description: 'A short, human-readable summary of the problem. It **SHOULD NOT** change from occurrence to occurrence of the problem, except for purposes of localization.'
+          type: string
+          example: Lo sentimos, tenemos inconvenientes con nuestros sistemas,
+                    nuestro equipo se encuentra trabajando para brindarte una solución.
+        detail:
+          description: A human-readable explanation specific to this occurrence of the problem.
+          type: string
+          example: Lo sentimos, tenemos inconvenientes con nuestros sistemas, nuestro equipo se encuentra trabajando
+                    para brindarte una solución.
+        severity:
+          description: Servity of error.
+          type: string
+          example: ERROR

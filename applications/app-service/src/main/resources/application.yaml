@@ -8,7 +8,10 @@ spring:
     add-properties: false
   profiles:
     include:
-    
-url:
-  balances: https://bitter-thunder-813.getsandbox.com/v1/operations/product-specific/deposits/accounts/balances
-  movements: https://late-dust-2436.getsandbox.com/deposit/movements
+
+balances:
+  url: https://patient-river-5918.getsandbox.com/v1/operations/product-specific/deposits/accounts/balances
+  timeout: 5
+movements:
+  url: https://young-breeze-416.getsandbox.com/deposit/movements
+  timeout: 5

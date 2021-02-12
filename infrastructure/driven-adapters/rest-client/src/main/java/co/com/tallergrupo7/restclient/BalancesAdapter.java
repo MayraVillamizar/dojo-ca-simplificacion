@@ -1,10 +1,12 @@
 package co.com.tallergrupo7.restclient;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -18,11 +20,15 @@ import co.com.tallergrupo7.restclient.model.RetrieveBalanceRequestData;
 import co.com.tallergrupo7.restclient.model.RetrieveBalanceResponse;
 import reactor.core.publisher.Mono;
 
+@Setter
 @Component
 public class BalancesAdapter implements BalancesGateway {
 
-	@Value("${url.balances}")
+	@Value("${balances.url}")
 	private String url;
+
+	@Value("${balances.timeout:6}")
+	private int timeout;
 
 	@Override
 	public Mono<Balances> consultBalances(Account account) {
@@ -33,8 +39,8 @@ public class BalancesAdapter implements BalancesGateway {
 
 		return WebClient.create(url).post().contentType(MediaType.APPLICATION_JSON)
 				.body(Mono.just(request), RetrieveBalanceRequest.class).retrieve()
-				.bodyToMono(RetrieveBalanceResponse.class)
-				.map(r -> r.getData().get(0).getAccount().getBalances());
+				.bodyToMono(RetrieveBalanceResponse.class).timeout(Duration.ofSeconds(timeout))
+				.map(r -> r.getData().get(0).getAccount().getBalances()).onErrorResume(t -> {t.printStackTrace();return Mono.empty();});
 
 	}
 

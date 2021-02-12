@@ -1,0 +1,28 @@
+{
+    data: [{
+        transaction: [{
+            id: '8316',
+            postedDate: '2020-03-01',
+            description: 'Abono preautorizado donación',
+            amount: '12,400.0000',
+            type: 'DEBITO',
+            reference1: null,
+            reference2: null,
+            reference3: null,
+            checkNumber: null
+        }],
+        office: {
+            code: '406',
+            name: 'Direccion General'
+        },
+        relatedTransferAccount: {
+            type: 'CUENTA_CORRIENTE',
+            number: '10115447858'
+        },
+        customer: {
+            name: 'Ferney Felipe Vanegas'
+        },
+        _responseSize: 40,
+        _flagMoreRecords: true
+    }]
+}

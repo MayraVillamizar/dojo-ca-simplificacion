@@ -14,4 +14,5 @@ import lombok.RequiredArgsConstructor;
 public class BalancesResponse {
 
 	private List<BalancesMovement> data;
+
 }
