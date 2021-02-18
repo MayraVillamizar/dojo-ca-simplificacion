@@ -264,7 +264,7 @@ components:
         name:
           type: string
           description: "Nombre del cliente titular"
-          example: "Ferney Felipe Vanegas"
+          example: "Elisa Plazas Figueroa"
   # --------------------------------
   # SCHEMES - DEPOSIT ACCOUNT TRANSACTION
   # -------------------------------- 
