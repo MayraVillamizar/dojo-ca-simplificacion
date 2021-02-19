@@ -46,7 +46,8 @@ public class MovementsAdapter implements MovementsGateway {
 		}
 
 		RetrieveTransactionRequestData data = RetrieveTransactionRequestData.builder()
-				.pagination(Pagination.builder().size(20).key(1).build()).account(balancesRequestData.getAccount())
+				.pagination(Pagination.builder().size(20).key(1).build())
+				.account(balancesRequestData.getAccount())
 				.transaction(transaction.build()).build();
 		List<RetrieveTransactionRequestData> datals = new ArrayList<>();
 		datals.add(data);

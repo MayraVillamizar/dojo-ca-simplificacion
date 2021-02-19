@@ -10,8 +10,8 @@ spring:
     include:
 
 balances:
-  url: https://patient-river-5918.getsandbox.com/v1/operations/product-specific/deposits/accounts/balances
+  url: https://autumn-grass-4374.getsandbox.com/v1/operations/product-specific/deposits/accounts/balances
   timeout: 5
 movements:
-  url: https://young-breeze-416.getsandbox.com/deposit/movements
+  url: https://white-glade-742.getsandbox.com/deposit/movements
   timeout: 5
